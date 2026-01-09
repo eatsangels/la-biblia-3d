@@ -47,7 +47,7 @@ const CreationEffects = ({ isGenesis }: { isGenesis: boolean }) => {
     );
 };
 
-const VerseEntity = ({ verse, index }: { verse: Scripture, index: number }) => {
+const VerseEntity = ({ verse, index, themeColor = '#FFD700' }: { verse: Scripture, index: number, themeColor?: string }) => {
     const xPos = index * VERSE_SPACING;
 
     return (
@@ -55,7 +55,7 @@ const VerseEntity = ({ verse, index }: { verse: Scripture, index: number }) => {
             {/* Map Marker / Node */}
             <mesh position={[0, -4, 0]}>
                 <circleGeometry args={[0.5, 32]} />
-                <meshBasicMaterial color="#FFD700" transparent opacity={0.8} />
+                <meshBasicMaterial color={themeColor} transparent opacity={0.8} />
             </mesh>
 
             {/* Connector Line */}
@@ -64,7 +64,6 @@ const VerseEntity = ({ verse, index }: { verse: Scripture, index: number }) => {
                 <meshBasicMaterial color="#ffffff" transparent opacity={0.2} />
             </mesh>
 
-            {/* Content Container */}
             <Float speed={2} rotationIntensity={0.05} floatIntensity={0.5} floatingRange={[-0.5, 0.5]}>
                 <group position={[0, 2, 0]}>
                     {/* Main Verse Text */}
@@ -83,9 +82,9 @@ const VerseEntity = ({ verse, index }: { verse: Scripture, index: number }) => {
 
                     {/* Reference */}
                     <Text
-                        position={[0, -10, 0]} // Vastly increased spacing
+                        position={[0, -10, 0]}
                         fontSize={0.4}
-                        color="#FFD700"
+                        color={themeColor}
                         anchorX="center"
                         anchorY="top"
                         letterSpacing={0.2}
@@ -98,8 +97,20 @@ const VerseEntity = ({ verse, index }: { verse: Scripture, index: number }) => {
     );
 };
 
+// Era Color Mapping
+const getEraColor = (book: string): string => {
+    const b = book.toLowerCase();
+    if (['génesis', 'éxodo', 'levítico', 'números', 'deuteronomio'].includes(b)) return '#FFD700'; // Gold
+    if (['mateo', 'marcos', 'lucas', 'juan'].includes(b)) return '#22d3ee'; // Cyan (Gospels)
+    if (['apocalipsis'].includes(b)) return '#f472b6'; // Pink/Magical
+    if (['salmos', 'proverbios'].includes(b)) return '#818cf8'; // Indigo (Poetry)
+    return '#FFD700'; // Default Gold
+};
+
 const SceneContent = ({ verses, scrollProgress }: { verses: Scripture[], scrollProgress: number }) => {
-    const isGenesis = verses[0]?.book_name === "Génesis";
+    const firstBook = verses[0]?.book_name || 'Génesis';
+    const primaryColor = getEraColor(firstBook);
+    const isGenesis = firstBook === "Génesis";
     const { camera } = useThree();
 
     useFrame(() => {
@@ -116,10 +127,10 @@ const SceneContent = ({ verses, scrollProgress }: { verses: Scripture[], scrollP
     return (
         <>
             <color attach="background" args={['#02040a']} />
-            <fog attach="fog" args={['#02040a', 20, 100]} /> {/* Relaxed fog */}
+            <fog attach="fog" args={['#02040a', 20, 100]} />
 
             <ambientLight intensity={0.2} />
-            <pointLight position={[10, 10, 10]} intensity={1} color="#FFD700" />
+            <pointLight position={[10, 10, 10]} intensity={1} color={primaryColor} />
 
             {/* Celestial Atmosphere */}
             <Sparkles
@@ -128,7 +139,7 @@ const SceneContent = ({ verses, scrollProgress }: { verses: Scripture[], scrollP
                 size={3}
                 speed={0.2}
                 opacity={0.6}
-                color="#FFD700" // Gold
+                color={primaryColor}
             />
             <Sparkles
                 count={400}
@@ -136,20 +147,20 @@ const SceneContent = ({ verses, scrollProgress }: { verses: Scripture[], scrollP
                 size={5}
                 speed={0.1}
                 opacity={0.3}
-                color="#ffffff" // White accents
+                color="#ffffff"
             />
 
             <CreationEffects isGenesis={isGenesis} />
 
             <group position={[0, 0, 0]}>
                 {verses.map((v, i) => (
-                    <VerseEntity key={v.id} verse={v} index={i} />
+                    <VerseEntity key={v.id} verse={v} index={i} themeColor={primaryColor} />
                 ))}
             </group>
 
             <EffectComposer>
-                <Bloom luminanceThreshold={0.2} mipmapBlur intensity={0.5} radius={0.4} />
-                <Vignette eskil={false} offset={0.1} darkness={0.5} />
+                <Bloom luminanceThreshold={0.1} mipmapBlur intensity={0.8} radius={0.5} />
+                <Vignette eskil={false} offset={0.1} darkness={0.6} />
             </EffectComposer>
         </>
     );

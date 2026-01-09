@@ -17,11 +17,6 @@ const TimelineSidebar = dynamic(
   { ssr: false }
 );
 
-const AudioController = dynamic(
-  () => import("@/components/AudioController"),
-  { ssr: false }
-);
-
 export default async function Home({
   searchParams,
 }: {
@@ -41,7 +36,7 @@ export default async function Home({
     <div className="bg-black text-white selection:bg-gold/30 min-h-screen">
       <GalacticNavigator />
       <TimelineSidebar />
-      <AudioController />
+      {/* AudioController moved inside KineticBible for state access */}
 
       {initialVerses.length > 0 ? (
         <KineticBible initialVerses={initialVerses} targetVerse={verse} />

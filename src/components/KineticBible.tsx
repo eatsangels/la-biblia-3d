@@ -7,6 +7,8 @@ const UniverseCanvas = dynamic(() => import('./canvas/UniverseCanvas'), {
     ssr: false,
     loading: () => <div className="fixed inset-0 bg-[#02040a]" />
 });
+import AudioController from './AudioController';
+import SearchOverlay from './SearchOverlay';
 import { Scripture } from '@/lib/types';
 
 interface KineticBibleProps {
@@ -139,6 +141,12 @@ export default function KineticBible({ initialVerses, targetVerse }: KineticBibl
             <div className="fixed bottom-12 right-12 z-20 pointer-events-none text-right hidden md:block">
                 <p className="text-[10px] tracking-[0.2em] text-white/30 uppercase">Infinite Travel Active</p>
             </div>
+
+            {/* Integrated Audio Controller */}
+            <AudioController currentBook={currentVerse.book_name} />
+
+            {/* Search Overlay */}
+            <SearchOverlay />
         </div>
     );
 }

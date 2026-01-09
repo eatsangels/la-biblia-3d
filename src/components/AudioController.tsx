@@ -4,17 +4,57 @@ import { useState, useRef, useEffect } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { createPortal } from 'react-dom';
 
-export default function AudioController() {
+// Era Audio Map
+const ERA_TRACKS: Record<string, string> = {
+    'Génesis': '/audio/creation.mp3', // Future file
+    'Mateo': '/audio/gospels.mp3',
+    'Apocalipsis': '/audio/revelation.mp3',
+    // Fallback
+    'default': '/audio/ambient-drone.mp3'
+};
+
+interface AudioControllerProps {
+    currentBook: string;
+}
+
+export default function AudioController({ currentBook }: AudioControllerProps) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [volume, setVolume] = useState(0.4);
     const [isHovered, setIsHovered] = useState(false);
-    const [isDragging, setIsDragging] = useState(false); // Lock for dragging
+    const [isDragging, setIsDragging] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
     const [mounted, setMounted] = useState(false);
+
+    // Determine track based on book grouping
+    const getTrackForBook = (book: string) => {
+        const b = book;
+        if (['Mateo', 'Marcos', 'Lucas', 'Juan'].includes(b)) return ERA_TRACKS['Mateo'];
+        if (b === 'Apocalipsis') return ERA_TRACKS['Apocalipsis'];
+        // Add more mappings here
+        return ERA_TRACKS['default'];
+    };
+
+    const activeTrack = getTrackForBook(currentBook || 'Génesis');
 
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    // Handle Track Switching
+    useEffect(() => {
+        if (!audioRef.current || !isPlaying) return;
+
+        // Simple crossfade logic could go here, for now we just swap source
+        // Check if source actually changed to avoid re-buffering same track
+        const currentSrc = audioRef.current.getAttribute('src');
+        if (currentSrc !== activeTrack) {
+            // In a perfect world, we'd crossfade. For now, we accept the cut.
+            // Or better: Use two audio elements. Keeping it simple v1.
+            // We can check if the file exists by just letting the error handler fallback?
+            // No, let's stick to the default for ALL for now to ensure it works, 
+            // but keep the logic structure.
+        }
+    }, [activeTrack, isPlaying]);
 
     const togglePlay = () => {
         if (!audioRef.current) return;
@@ -23,7 +63,13 @@ export default function AudioController() {
             audioRef.current.pause();
         } else {
             audioRef.current.volume = volume;
-            audioRef.current.play().catch(e => console.log("Audio autoplay blocked:", e));
+            const playPromise = audioRef.current.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(e => {
+                    console.log("Audio autoplay blocked or file missing:", e);
+                    // Fallback to default if specific track fails?
+                });
+            }
         }
         setIsPlaying(!isPlaying);
     };
@@ -36,18 +82,28 @@ export default function AudioController() {
         }
     };
 
+    // Error handling for missing tracks
+    const handleAudioError = () => {
+        if (audioRef.current && audioRef.current.src !== ERA_TRACKS['default']) {
+            console.warn(`Track ${activeTrack} missing, falling back.`);
+            audioRef.current.src = ERA_TRACKS['default'];
+            if (isPlaying) audioRef.current.play();
+        }
+    };
+
     if (!mounted) return null;
 
     return createPortal(
         <div
             className="fixed bottom-8 left-8 z-50 flex flex-col items-center gap-2 group"
             onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => !isDragging && setIsHovered(false)} // Check lock
+            onMouseLeave={() => !isDragging && setIsHovered(false)}
         >
             <audio
                 ref={audioRef}
-                src="/audio/ambient-drone.mp3"
+                src={activeTrack} // Dynamic Track
                 loop
+                onError={handleAudioError}
             />
 
             {/* Volume Slider (Reveals on Hover) */}
@@ -92,7 +148,7 @@ export default function AudioController() {
                 absolute left-14 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-widest text-gold whitespace-nowrap pointer-events-none transition-all duration-500
                 ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}
             `}>
-                Ambiente
+                {activeTrack.includes('ambient') ? 'Ambiente' : 'Banda Sonora'}
             </span>
         </div>,
         document.body
