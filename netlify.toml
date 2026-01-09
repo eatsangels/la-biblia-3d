@@ -3,12 +3,4 @@
   publish = ".next"
 
 [build.environment]
-  NEXT_USE_NETLIFY_EDGE = "true"
-
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
-
-[[redirects]]
-  from = "/*"
-  to = "/:splat"
-  status = 200
+  NPM_FLAGS = "--legacy-peer-deps"
