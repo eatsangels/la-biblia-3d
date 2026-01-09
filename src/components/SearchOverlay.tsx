@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, X, Sparkles, BookOpen, Bookmark } from 'lucide-react';
+import { Search, X, Sparkles, BookOpen, Bookmark, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useBookmarks } from '@/hooks/useBookmarks';
@@ -183,6 +184,11 @@ export default function SearchOverlay() {
                                                     verse={verse}
                                                     stored={isBookmarked(verse.id)}
                                                     onToggle={() => isBookmarked(verse.id) ? removeBookmark(verse.id) : saveBookmark(verse)}
+                                                    onShare={() => {
+                                                        const url = `${window.location.origin}/api/og?book=${encodeURIComponent(verse.book_name)}&chapter=${verse.chapter}&verse=${verse.verse_number}&text=${encodeURIComponent(verse.content)}`;
+                                                        navigator.clipboard.writeText(url);
+                                                        toast.success("Enlace de imagen copiado al portapapeles");
+                                                    }}
                                                     onNavigate={() => navigateToVerse(verse.book_name, verse.chapter, verse.verse_number)}
                                                 />
                                             ))}
@@ -226,7 +232,7 @@ export default function SearchOverlay() {
     );
 }
 
-function ResultItem({ verse, stored, onToggle, onNavigate }: any) {
+function ResultItem({ verse, stored, onToggle, onNavigate, onShare }: any) {
     return (
         <div className="w-full flex items-start gap-2 p-2 rounded-xl hover:bg-gold/10 hover:border-gold/20 border border-transparent transition-all group">
             <button onClick={onNavigate} className="flex-1 text-left">
@@ -239,12 +245,23 @@ function ResultItem({ verse, stored, onToggle, onNavigate }: any) {
                     {verse.content}
                 </p>
             </button>
-            <button
-                onClick={(e) => { e.stopPropagation(); onToggle(); }}
-                className={`p-2 rounded-full hover:bg-white/10 transition-colors ${stored ? 'text-gold' : 'text-white/20 hover:text-white'}`}
-            >
-                <Bookmark size={18} fill={stored ? "currentColor" : "none"} />
-            </button>
+            <div className="flex items-center gap-1">
+                {onShare && (
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onShare(); }}
+                        className="p-2 rounded-full hover:bg-white/10 transition-colors text-white/20 hover:text-gold"
+                        title="Compartir Versículo"
+                    >
+                        <Share2 size={16} />
+                    </button>
+                )}
+                <button
+                    onClick={(e) => { e.stopPropagation(); onToggle(); }}
+                    className={`p-2 rounded-full hover:bg-white/10 transition-colors ${stored ? 'text-gold' : 'text-white/20 hover:text-white'}`}
+                >
+                    <Bookmark size={18} fill={stored ? "currentColor" : "none"} />
+                </button>
+            </div>
         </div>
     );
 }
