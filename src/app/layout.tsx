@@ -5,9 +5,9 @@ import { Providers } from "@/components/Providers";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const cinzel = Cinzel({ subsets: ["latin"], variable: "--font-cinzel" });
-const libreBaskerville = Libre_Baskerville({ 
-  weight: ['400', '700', '400'], 
-  subsets: ["latin"], 
+const libreBaskerville = Libre_Baskerville({
+  weight: ['400', '700', '400'],
+  subsets: ["latin"],
   variable: "--font-libre",
   style: ['normal', 'italic']
 });
@@ -15,6 +15,17 @@ const libreBaskerville = Libre_Baskerville({
 export const metadata: Metadata = {
   title: "The Living Word - Biblia Espacial Inmersiva",
   description: "Navega a través de la Biblia en una experiencia 3D dinámica y espacial.",
+  manifest: '/manifest.json',
+  icons: {
+    icon: '/icon.png',
+    apple: '/icon.png',
+  },
+  themeColor: '#000000',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Biblia 3D',
+  },
 };
 
 export default function RootLayout({
