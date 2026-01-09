@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@heroui/react": "^2.8.7",
     "@react-email/components": "^1.0.3",
     "@react-three/drei": "^9.121.4",

@@ -7,11 +7,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useBookmarks } from '@/hooks/useBookmarks';
+import { askGemini } from '@/actions/gemini';
 
 export default function SearchOverlay() {
     const [isOpen, setIsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<'search' | 'collection'>('search');
     const [query, setQuery] = useState('');
+    const [aiAnswer, setAiAnswer] = useState<string | null>(null);
     const [results, setResults] = useState<any[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [mounted, setMounted] = useState(false);
@@ -38,16 +40,30 @@ export default function SearchOverlay() {
         setQuery(term);
         if (term.length < 3) {
             setResults([]);
+            setAiAnswer(null);
             return;
         }
 
         setIsSearching(true);
+        setAiAnswer(null);
 
         try {
+            let searchTerms = term;
+
+            // AI INTERVENTION for questions or complex topics
+            if (term.length > 15 || term.includes('?')) {
+                const aiResponse = await askGemini(term);
+
+                if (aiResponse && !aiResponse.error) {
+                    setAiAnswer(aiResponse.answer);
+                    searchTerms = aiResponse.keywords || term;
+                }
+            }
+
             const { data, error } = await supabase
                 .from('scriptures')
                 .select('*')
-                .textSearch('content', term, {
+                .textSearch('content', searchTerms, {
                     type: 'websearch',
                     config: 'spanish'
                 })
@@ -70,7 +86,6 @@ export default function SearchOverlay() {
 
     return createPortal(
         <>
-            {/* Trigger Button (Floating High Z-Index) */}
             <button
                 onClick={() => setIsOpen(true)}
                 className="fixed top-24 right-8 z-[9999] p-4 bg-black/80 backdrop-blur-xl border border-gold/50 rounded-full text-gold hover:scale-110 transition-all shadow-[0_0_20px_rgba(255,215,0,0.3)] cursor-pointer"
@@ -96,7 +111,6 @@ export default function SearchOverlay() {
                             className="w-full max-w-2xl bg-[#0a0a0a] border border-gold/20 rounded-2xl shadow-[0_0_50px_rgba(255,215,0,0.1)] overflow-hidden flex flex-col max-h-[80vh]"
                             onClick={e => e.stopPropagation()}
                         >
-                            {/* Header & Tabs */}
                             <div className="border-b border-white/5 bg-black/40">
                                 <div className="flex items-center gap-4 p-4 pb-0">
                                     <button
@@ -135,12 +149,22 @@ export default function SearchOverlay() {
                                 )}
                             </div>
 
-                            {/* Content Area */}
                             <div className="flex-1 overflow-y-auto p-2 min-h-[300px]">
                                 {activeTab === 'search' ? (
                                     <>
-                                        {/* Search Logic */}
-                                        {results.length === 0 && query.length > 0 && !isSearching && (
+                                        {aiAnswer && (
+                                            <div className="mb-4 p-4 rounded-xl bg-gold/5 border border-gold/20">
+                                                <div className="flex items-center gap-2 mb-2 text-gold text-xs uppercase tracking-widest font-bold">
+                                                    <Sparkles size={12} />
+                                                    <span>Interpretación Divina</span>
+                                                </div>
+                                                <p className="text-sm text-zinc-300 font-serif italic leading-relaxed">
+                                                    "{aiAnswer}"
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {results.length === 0 && !isSearching && !aiAnswer && query.length > 0 && (
                                             <div className="h-full flex flex-col items-center justify-center py-10 text-white/30 gap-4">
                                                 <Sparkles size={32} />
                                                 <p>No se encontró esa sabiduría exacta.</p>
@@ -166,7 +190,6 @@ export default function SearchOverlay() {
                                     </>
                                 ) : (
                                     <>
-                                        {/* Collection Logic */}
                                         {bookmarks.length === 0 ? (
                                             <div className="h-full flex flex-col items-center justify-center py-10 text-white/20 gap-4">
                                                 <Bookmark size={32} className="opacity-20" />
@@ -190,7 +213,6 @@ export default function SearchOverlay() {
                                 )}
                             </div>
 
-                            {/* Footer */}
                             <div className="p-3 bg-black/50 border-t border-white/5 text-[10px] text-white/20 flex justify-between px-6 uppercase tracking-widest">
                                 <span>{activeTab === 'search' ? 'Neural Search V1' : 'Local Ark Storage'}</span>
                                 <span>ESC para cerrar</span>
@@ -204,7 +226,6 @@ export default function SearchOverlay() {
     );
 }
 
-// Extracted for cleaner render
 function ResultItem({ verse, stored, onToggle, onNavigate }: any) {
     return (
         <div className="w-full flex items-start gap-2 p-2 rounded-xl hover:bg-gold/10 hover:border-gold/20 border border-transparent transition-all group">
