@@ -186,9 +186,9 @@ export default function SearchOverlay() {
                                                     stored={isBookmarked(verse.id)}
                                                     onToggle={() => isBookmarked(verse.id) ? removeBookmark(verse.id) : saveBookmark(verse)}
                                                     onShare={() => {
-                                                        const url = `${window.location.origin}/api/og?book=${encodeURIComponent(verse.book_name)}&chapter=${verse.chapter}&verse=${verse.verse_number}&text=${encodeURIComponent(verse.content)}`;
+                                                        const url = `${window.location.origin}/?book=${encodeURIComponent(verse.book_name)}&chapter=${verse.chapter}&verse=${verse.verse_number}`;
                                                         navigator.clipboard.writeText(url);
-                                                        toast.success("Enlace de imagen copiado al portapapeles");
+                                                        toast.success("Enlace a la app copiado");
                                                     }}
                                                     onNavigate={() => navigateToVerse(verse.book_name, verse.chapter, verse.verse_number)}
                                                 />

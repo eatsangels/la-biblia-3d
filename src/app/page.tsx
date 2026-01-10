@@ -7,6 +7,11 @@ const GalacticNavigator = dynamic(
   { ssr: false }
 );
 
+// ... imports
+import { Metadata } from "next";
+
+// ... existing dynamic imports
+
 const KineticBible = dynamic(
   () => import("@/components/KineticBible"),
   { ssr: false }
@@ -16,6 +21,68 @@ const TimelineSidebar = dynamic(
   () => import("@/components/TimelineSidebar").then(mod => ({ default: mod.TimelineSidebar })),
   { ssr: false }
 );
+
+type Props = {
+  params: { slug: string };
+  searchParams: { book?: string; chapter?: string; verse?: string };
+};
+
+export async function generateMetadata(
+  { searchParams }: Props
+): Promise<Metadata> {
+  const book = searchParams.book;
+  const chapter = searchParams.chapter ? parseInt(searchParams.chapter) : undefined;
+  const verse = searchParams.verse ? parseInt(searchParams.verse) : undefined;
+
+  let title = "The Living Word - Biblia Espacial";
+  let description = "Navega a través de la Biblia en una experiencia 3D dinámica y espacial.";
+  let ogImage = "/icon.png"; // Default image
+
+  if (book && chapter && verse) {
+    const scriptures = await getScriptures({
+      book,
+      chapter,
+      pageSize: 100 // We fetch the chapter, but we find the verse
+    });
+
+    const targetVerse = scriptures.find(s => s.verse_number === verse);
+
+    if (targetVerse) {
+      title = `${targetVerse.book_name} ${targetVerse.chapter}:${targetVerse.verse_number} - La Biblia 3D`;
+      description = targetVerse.content;
+
+      // Construct dynamic OG Image URL
+      const params = new URLSearchParams();
+      params.set('book', targetVerse.book_name);
+      params.set('chapter', targetVerse.chapter.toString());
+      params.set('verse', targetVerse.verse_number.toString());
+      params.set('text', targetVerse.content);
+
+      // Use an absolute URL if possible, or relative if deployed on same domain
+      // Since this runs on server, we can use process.env.NEXT_PUBLIC_SITE_URL or similar if defined, 
+      // OR just rely on Next.js resolving absolute URLs for metadata images automatically if we return a relative path starting with /
+      // But for OpenGraph, full URLs are safer. Let's assume standard Next.js behavior relative to base.
+      ogImage = `/api/og?${params.toString()}`;
+    }
+  }
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [ogImage],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
+    },
+  };
+}
 
 export default async function Home({
   searchParams,
