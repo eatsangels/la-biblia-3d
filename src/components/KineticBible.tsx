@@ -40,9 +40,11 @@ export default function KineticBible({ initialVerses, targetVerse }: KineticBibl
         setIsRestored(true);
     }, []);
 
-    // SAVE Progress (with debouncing or interval)
+    // SAVE Progress & SNAP Logic
     useEffect(() => {
         if (!isRestored) return;
+
+        let snapTimeout: NodeJS.Timeout;
 
         const handleScroll = () => {
             const winScroll = window.scrollY;
@@ -52,11 +54,38 @@ export default function KineticBible({ initialVerses, targetVerse }: KineticBibl
 
             // Save to localStorage
             localStorage.setItem('genesis_travel_progress', scrolled.toString());
+
+            // RESET Snap Timer
+            clearTimeout(snapTimeout);
+            snapTimeout = setTimeout(() => {
+                // SNAP to nearest verse logic
+                if (initialVerses.length > 0) {
+                    const totalVerses = initialVerses.length;
+
+                    // Find the exact index we are currently floating at
+                    const floatIndex = scrolled * totalVerses;
+                    const nearestIndex = Math.round(floatIndex);
+
+                    // Snap only if we are significantly misaligned (> 0.05 index drift)
+                    if (Math.abs(floatIndex - nearestIndex) > 0.05) {
+                        const targetRatio = nearestIndex / totalVerses;
+                        const targetY = targetRatio * height;
+
+                        window.scrollTo({
+                            top: targetY,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            }, 150); // 150ms idle to trigger snap
         };
 
         window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [isRestored]);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            clearTimeout(snapTimeout);
+        };
+    }, [isRestored, initialVerses.length]);
 
     // AUTO-SCROLL to Target Verse
     useEffect(() => {

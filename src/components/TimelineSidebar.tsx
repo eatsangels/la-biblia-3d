@@ -59,7 +59,7 @@ export function TimelineSidebar() {
             {/* Trigger Button - Sleek & Floating */}
             <motion.button
                 onClick={() => setIsOpen(!isOpen)}
-                className="fixed left-6 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center gap-4 group"
+                className="fixed left-6 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center gap-4 group md:flex hidden"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
             >
@@ -68,6 +68,14 @@ export function TimelineSidebar() {
                     Chronos Timeline
                 </span>
                 <div className="h-24 w-[1px] bg-gradient-to-b from-transparent via-white/50 to-transparent group-hover:via-cyan-400 transition-colors" />
+            </motion.button>
+
+            {/* Mobile Trigger */}
+            <motion.button
+                onClick={() => setIsOpen(!isOpen)}
+                className="fixed left-4 top-24 z-40 p-2 md:hidden text-white/40 hover:text-white"
+            >
+                <History size={20} />
             </motion.button>
 
             {/* Glassmorphism Sidebar Panel */}
@@ -89,107 +97,86 @@ export function TimelineSidebar() {
                             animate={{ x: 0 }}
                             exit={{ x: '-100%' }}
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            className="fixed left-0 top-0 h-full w-[400px] z-50 bg-slate-900/80 backdrop-blur-xl border-r border-white/10 shadow-2xl overflow-y-auto flex flex-col"
+                            className="fixed left-0 top-0 h-full w-[85vw] md:w-[400px] z-50 bg-slate-900/95 backdrop-blur-xl border-r border-white/10 shadow-2xl overflow-y-auto flex flex-col"
                         >
-                            <div className="p-8 pb-4">
-                                <div className="flex justify-between items-center mb-8">
+                            <div className="p-6 md:p-8 pb-4">
+                                <div className="flex justify-between items-start mb-8">
                                     <div>
-                                        <h2 className="text-2xl font-light tracking-wider text-white">
+                                        <h2 className="text-xl md:text-2xl font-light tracking-wider text-white">
                                             LÍNEA DE TIEMPO
                                         </h2>
-                                        <p className="text-xs text-zinc-400 mt-1 uppercase tracking-widest">Eras de la Verdad</p>
+                                        <p className="text-[10px] md:text-xs text-zinc-400 mt-1 uppercase tracking-widest">Eras de la Verdad</p>
                                     </div>
                                     <button
                                         onClick={() => setIsOpen(false)}
-                                        className="p-2 hover:bg-white/10 rounded-full transition-colors group"
+                                        className="p-2 -mr-2 text-white/40 hover:text-white hover:bg-white/10 rounded-full transition-colors"
                                     >
-                                        <div className="relative">
-                                            <div className="absolute inset-0 bg-cyan-500/20 blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            <ChevronRight className="w-6 h-6 text-white/70 rotate-180" />
-                                        </div>
+                                        <ChevronRight className="rotate-180" size={24} />
                                     </button>
                                 </div>
 
-                                <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-white/10 to-transparent mb-6" />
-                            </div>
-
-                            <div className="flex-1 overflow-y-auto p-8 pt-0 space-y-6 relative custom-scrollbar">
-                                {/* Vertical Line Guide */}
-                                <div className="absolute left-[34px] top-0 bottom-0 w-[1px] bg-white/5" />
-
-                                {ERAS.map((era) => (
-                                    <motion.div
-                                        key={era.name}
-                                        className={cn(
-                                            "relative pl-10 group cursor-pointer transition-all duration-300",
-                                            activeEra === era.name ? "opacity-100" : "opacity-60 hover:opacity-100"
-                                        )}
-                                        onMouseEnter={() => setActiveEra(era.name)}
-                                    >
-                                        {/* Timeline Dot */}
-                                        <div className={cn(
-                                            "absolute left-[13px] top-1 w-3 h-3 rounded-full border-2 transition-all duration-300 z-10",
-                                            activeEra === era.name
-                                                ? "bg-cyan-500 border-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.5)]"
-                                                : "bg-black border-white/20 group-hover:border-white/50"
-                                        )} />
-
-                                        <div className={cn(
-                                            "p-5 rounded-xl border transition-all duration-300 backdrop-blur-md",
-                                            activeEra === era.name
-                                                ? "bg-white/10 border-cyan-500/30 shadow-lg shadow-cyan-900/20"
-                                                : "bg-white/5 border-white/5 hover:bg-white/10"
-                                        )}>
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <era.icon className={cn(
-                                                    "w-4 h-4 transition-colors",
-                                                    activeEra === era.name ? "text-cyan-400" : "text-white/50"
-                                                )} />
-                                                <span className="text-sm font-bold tracking-wide text-white font-serif uppercase">
-                                                    {era.name}
-                                                </span>
-                                            </div>
-
-                                            <p className="text-xs text-zinc-400 mb-4 font-light">
-                                                {era.description}
-                                            </p>
-
-                                            {/* Books Grid */}
-                                            <AnimatePresence>
-                                                {activeEra === era.name && (
-                                                    <motion.div
-                                                        initial={{ opacity: 0, height: 0 }}
-                                                        animate={{ opacity: 1, height: 'auto' }}
-                                                        exit={{ opacity: 0, height: 0 }}
-                                                        className="grid grid-cols-2 gap-2 pt-3 border-t border-white/10"
-                                                    >
-                                                        {era.books.map((book) => (
-                                                            <motion.button
-                                                                key={book}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    setIsOpen(false);
-                                                                    window.location.search = `?book=${encodeURIComponent(book)}`;
-                                                                }}
-                                                                whileHover={{ x: 2, color: '#22d3ee' }}
-                                                                className="text-left text-[10px] text-zinc-400 transition-colors flex items-center gap-1.5"
-                                                            >
-                                                                <span className="w-1 h-1 rounded-full bg-white/20" />
-                                                                {book}
-                                                            </motion.button>
-                                                        ))}
-                                                    </motion.div>
+                                <div className="space-y-4">
+                                    {ERAS.map((era, index) => {
+                                        const isActive = activeEra === era.name;
+                                        return (
+                                            <motion.div
+                                                key={era.name}
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: index * 0.1 }}
+                                                className={cn(
+                                                    "relative overflow-hidden rounded-xl border transition-all duration-300 group cursor-pointer",
+                                                    isActive
+                                                        ? "bg-gradient-to-br border-white/20 shadow-lg shadow-black/20"
+                                                        : "bg-white/5 border-white/5 hover:border-white/10 hover:bg-white/10"
                                                 )}
-                                            </AnimatePresence>
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </div>
+                                                onClick={() => setActiveEra(isActive ? null : era.name)}
+                                            >
+                                                <div className={cn("absolute inset-0 bg-gradient-to-br opacity-20", era.color)} />
 
-                            <div className="p-6 border-t border-white/10 bg-black/20 text-center">
-                                <span className="text-[10px] text-zinc-600 tracking-[0.2em] font-light">
-                                    THE LIVING WORD • ALPHA 1.0
-                                </span>
+                                                <div className="relative p-6">
+                                                    <div className="flex items-center gap-4 mb-2">
+                                                        <div className={cn("p-2 rounded-lg bg-black/20", isActive ? "text-white" : "text-white/60")}>
+                                                            <era.icon size={20} />
+                                                        </div>
+                                                        <div>
+                                                            <h3 className={cn("font-medium tracking-wide", isActive ? "text-white" : "text-white/80")}>
+                                                                {era.name}
+                                                            </h3>
+                                                            <p className="text-[10px] uppercase tracking-wider text-white/40">{era.description}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <AnimatePresence>
+                                                        {isActive && (
+                                                            <motion.div
+                                                                initial={{ height: 0, opacity: 0 }}
+                                                                animate={{ height: 'auto', opacity: 1 }}
+                                                                exit={{ height: 0, opacity: 0 }}
+                                                                className="overflow-hidden"
+                                                            >
+                                                                <div className="pt-4 mt-4 border-t border-white/10 grid grid-cols-2 gap-2">
+                                                                    {era.books.map((book) => (
+                                                                        <span
+                                                                            key={book}
+                                                                            className="text-sm text-white/60 hover:text-white transition-colors cursor-pointer py-1 px-2 rounded hover:bg-white/5"
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                window.location.search = `?book=${encodeURIComponent(book)}`;
+                                                                            }}
+                                                                        >
+                                                                            {book}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </div>
+                                            </motion.div>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         </motion.div>
                     </>

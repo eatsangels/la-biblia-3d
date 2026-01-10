@@ -48,7 +48,16 @@ const CreationEffects = ({ isGenesis }: { isGenesis: boolean }) => {
 };
 
 const VerseEntity = ({ verse, index, themeColor = '#FFD700' }: { verse: Scripture, index: number, themeColor?: string }) => {
+    const { viewport } = useThree();
+    const isMobile = viewport.width < viewport.height;
     const xPos = index * VERSE_SPACING;
+
+    // Calculate responsive text sizing
+    // Mobile view (~15 units width) vs Desktop (~49 units)
+    // Adjusted: Very aggressive wrapping for mobile to guarantee no cutoff
+    const maxWidth = isMobile ? viewport.width * 0.65 : 22;
+    const mainFontSize = isMobile ? 0.5 : 0.8;
+    const refFontSize = isMobile ? 0.3 : 0.4;
 
     return (
         <group position={[xPos, 0, 0]}>
@@ -66,10 +75,10 @@ const VerseEntity = ({ verse, index, themeColor = '#FFD700' }: { verse: Scriptur
 
             <Float speed={2} rotationIntensity={0.05} floatIntensity={0.5} floatingRange={[-0.5, 0.5]}>
                 <group position={[0, 2, 0]}>
-                    {/* Main Verse Text */}
+                    {/* Main Verse Text - Responsive Width */}
                     <Text
-                        fontSize={0.8}
-                        maxWidth={22}
+                        fontSize={mainFontSize}
+                        maxWidth={maxWidth}
                         textAlign="center"
                         color="#ffffff"
                         anchorX="center"
@@ -83,7 +92,7 @@ const VerseEntity = ({ verse, index, themeColor = '#FFD700' }: { verse: Scriptur
                     {/* Reference */}
                     <Text
                         position={[0, -10, 0]}
-                        fontSize={0.4}
+                        fontSize={refFontSize}
                         color={themeColor}
                         anchorX="center"
                         anchorY="top"

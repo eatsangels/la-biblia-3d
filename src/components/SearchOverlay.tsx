@@ -102,37 +102,37 @@ export default function SearchOverlay() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[10000] bg-black/90 backdrop-blur-md flex items-start justify-center pt-32 px-4"
+                        className="fixed inset-0 z-[10000] bg-black/90 backdrop-blur-md flex items-start justify-center pt-0 md:pt-32 px-0 md:px-4"
                         onClick={() => setIsOpen(false)}
                     >
                         <motion.div
-                            initial={{ y: -20, scale: 0.95 }}
-                            animate={{ y: 0, scale: 1 }}
-                            exit={{ y: -20, scale: 0.95 }}
-                            transition={{ type: 'spring', damping: 20 }}
-                            className="w-full max-w-2xl bg-[#0a0a0a] border border-gold/20 rounded-2xl shadow-[0_0_50px_rgba(255,215,0,0.1)] overflow-hidden flex flex-col max-h-[80vh]"
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 20, opacity: 0 }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                            className="w-full h-full md:h-auto md:max-w-2xl bg-[#0a0a0a] border-x-0 border-y-0 md:border md:border-gold/20 md:rounded-2xl shadow-[0_0_50px_rgba(255,215,0,0.1)] overflow-hidden flex flex-col md:max-h-[80vh]"
                             onClick={e => e.stopPropagation()}
                         >
-                            <div className="border-b border-white/5 bg-black/40">
-                                <div className="flex items-center gap-4 p-4 pb-0">
+                            <div className="border-b border-white/5 bg-black/40 pt-safe-top">
+                                <div className="flex items-center gap-4 p-4 pb-0 pt-12 md:pt-4">
                                     <button
                                         onClick={() => setActiveTab('search')}
                                         className={`pb-4 px-2 text-sm uppercase tracking-wider transition-colors border-b-2 ${activeTab === 'search' ? 'border-gold text-gold' : 'border-transparent text-white/40 hover:text-white'}`}
                                     >
-                                        Búsqueda Neural
+                                        Búsqueda
                                     </button>
                                     <button
                                         onClick={() => setActiveTab('collection')}
                                         className={`pb-4 px-2 text-sm uppercase tracking-wider transition-colors border-b-2 ${activeTab === 'collection' ? 'border-gold text-gold' : 'border-transparent text-white/40 hover:text-white'}`}
                                     >
-                                        Mi Colección ({bookmarks.length})
+                                        Colección ({bookmarks.length})
                                     </button>
                                     <div className="flex-1" />
                                     <button
                                         onClick={() => setIsOpen(false)}
                                         className="mb-4 p-2 hover:bg-white/10 rounded-full transition-colors"
                                     >
-                                        <X size={20} className="text-white/40" />
+                                        <X size={24} className="text-white/60" />
                                     </button>
                                 </div>
 

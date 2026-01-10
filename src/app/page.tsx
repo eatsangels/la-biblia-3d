@@ -100,7 +100,7 @@ export default async function Home({
   });
 
   return (
-    <div className="bg-black text-white selection:bg-gold/30 min-h-screen">
+    <div className="bg-black text-white selection:bg-gold/30 min-h-dvh">
       <GalacticNavigator />
       <TimelineSidebar />
       {/* AudioController moved inside KineticBible for state access */}
