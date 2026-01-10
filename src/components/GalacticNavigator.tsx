@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, ChevronRight, BookOpen, Hash, ArrowLeft } from 'lucide-react';
+import { BookOpen, Hash, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { BIBLE_BOOKS } from '@/lib/bibleData';

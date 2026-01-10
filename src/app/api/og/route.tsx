@@ -66,15 +66,20 @@ export async function GET(request: Request) {
                     <div
                         style={{
                             display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
                             textAlign: 'center',
                             fontSize: 48,
                             lineHeight: 1.4,
                             color: '#e5e5e5',
                             textShadow: '0 2px 10px rgba(0,0,0,0.5)',
-                            maxWidth: '900px',
+                            padding: '0 40px',
+                            maxHeight: '400px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
                         }}
                     >
-                        "{text}"
+                        &ldquo;{text}&rdquo;
                     </div>
 
                     {/* Reference Footer */}
@@ -117,7 +122,8 @@ export async function GET(request: Request) {
                 height: 630,
             }
         );
-    } catch (e: any) {
+    } catch (e: unknown) {
+        console.error(e);
         return new Response(`Failed to generate the image`, {
             status: 500,
         });

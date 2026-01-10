@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, History, BookOpen, ScrollText, Flame, MessageSquare, Compass, ShieldCheck } from 'lucide-react';
+import { ChevronRight, History, BookOpen, ScrollText, Flame, MessageSquare, Compass } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const ERAS = [

@@ -9,13 +9,14 @@ import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { askGemini } from '@/actions/gemini';
+import { type Scripture } from '@/lib/types';
 
 export default function SearchOverlay() {
     const [isOpen, setIsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<'search' | 'collection'>('search');
     const [query, setQuery] = useState('');
     const [aiAnswer, setAiAnswer] = useState<string | null>(null);
-    const [results, setResults] = useState<any[]>([]);
+    const [results, setResults] = useState<Scripture[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [mounted, setMounted] = useState(false);
     const router = useRouter();
@@ -61,7 +62,7 @@ export default function SearchOverlay() {
                 }
             }
 
-            const { data, error } = await supabase
+            const { data } = await supabase
                 .from('scriptures')
                 .select('*')
                 .textSearch('content', searchTerms, {
@@ -70,7 +71,7 @@ export default function SearchOverlay() {
                 })
                 .limit(5);
 
-            if (data) setResults(data);
+            if (data) setResults(data as Scripture[]);
         } catch (error) {
             console.error(error);
         } finally {
@@ -160,7 +161,7 @@ export default function SearchOverlay() {
                                                     <span>Interpretación Divina</span>
                                                 </div>
                                                 <p className="text-sm text-zinc-300 font-serif italic leading-relaxed">
-                                                    "{aiAnswer}"
+                                                    &quot;{aiAnswer}&quot;
                                                 </p>
                                             </div>
                                         )}
@@ -180,7 +181,7 @@ export default function SearchOverlay() {
                                         <div className="space-y-1">
                                             {results.map((verse) => (
                                                 <ResultItem
-                                                    key={verse.id}
+                                                    key={verse.id.toString()}
                                                     verse={verse}
                                                     stored={isBookmarked(verse.id)}
                                                     onToggle={() => isBookmarked(verse.id) ? removeBookmark(verse.id) : saveBookmark(verse)}
@@ -206,7 +207,7 @@ export default function SearchOverlay() {
                                             <div className="space-y-1">
                                                 {bookmarks.map((verse) => (
                                                     <ResultItem
-                                                        key={verse.id}
+                                                        key={verse.id.toString()}
                                                         verse={verse}
                                                         stored={true}
                                                         onToggle={() => removeBookmark(verse.id)}
@@ -232,7 +233,7 @@ export default function SearchOverlay() {
     );
 }
 
-function ResultItem({ verse, stored, onToggle, onNavigate, onShare }: any) {
+function ResultItem({ verse, stored, onToggle, onNavigate, onShare }: { verse: Scripture, stored: boolean, onToggle: () => void, onNavigate: () => void, onShare?: () => void }) {
     return (
         <div className="w-full flex items-start gap-2 p-2 rounded-xl hover:bg-gold/10 hover:border-gold/20 border border-transparent transition-all group">
             <button onClick={onNavigate} className="flex-1 text-left">
